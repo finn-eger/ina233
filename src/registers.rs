@@ -75,7 +75,7 @@ pub(crate) struct IoutOcWarnLimit {
 impl From<[u8; 2]> for IoutOcWarnLimit {
     fn from(bytes: [u8; 2]) -> Self {
         Self {
-            value: bytes.bits::<1, 14>(),
+            value: bytes.bits::<1, 12>(),
         }
     }
 }
@@ -91,7 +91,7 @@ pub(crate) struct VinOvWarnLimit {
 impl From<[u8; 2]> for VinOvWarnLimit {
     fn from(bytes: [u8; 2]) -> Self {
         Self {
-            value: bytes.bits::<1, 14>(),
+            value: bytes.bits::<1, 12>(),
         }
     }
 }
@@ -107,7 +107,7 @@ pub(crate) struct VinUvWarnLimit {
 impl From<[u8; 2]> for VinUvWarnLimit {
     fn from(bytes: [u8; 2]) -> Self {
         Self {
-            value: bytes.bits::<1, 14>(),
+            value: bytes.bits::<1, 12>(),
         }
     }
 }
@@ -287,7 +287,7 @@ pub(crate) struct ReadVin {
 }
 
 impl ReadVin {
-    pub fn voltage(&self) -> ElectricPotential {
+    pub(crate) fn voltage(&self) -> ElectricPotential {
         convert_to_voltage(self.value)
     }
 }
@@ -295,7 +295,7 @@ impl ReadVin {
 impl From<[u8; 2]> for ReadVin {
     fn from(bytes: [u8; 2]) -> Self {
         Self {
-            value: bytes.bits::<0, 15>(),
+            value: bytes.bits::<0, 16>(),
         }
     }
 }
@@ -305,11 +305,11 @@ impl ReadableRegister<2> for ReadVin {
 }
 
 pub(crate) struct ReadIin {
-    value: u16,
+    value: i16,
 }
 
 impl ReadIin {
-    pub fn current(&self, current_lsb: ElectricCurrent) -> ElectricCurrent {
+    pub(crate) fn current(&self, current_lsb: ElectricCurrent) -> ElectricCurrent {
         convert_to_current(self.value, current_lsb)
     }
 }
@@ -317,7 +317,7 @@ impl ReadIin {
 impl From<[u8; 2]> for ReadIin {
     fn from(bytes: [u8; 2]) -> Self {
         Self {
-            value: bytes.bits::<0, 15>(),
+            value: bytes.bits::<0, 16>() as i16,
         }
     }
 }
@@ -420,10 +420,9 @@ pub(crate) struct MfrReadVshunt {
 
 impl From<[u8; 2]> for MfrReadVshunt {
     fn from(bytes: [u8; 2]) -> Self {
-        let sign = bytes.bit::<15>();
-        let value = bytes.bits::<0, 15>() as i16;
-        let value = if sign { -value } else { value };
-        Self { value }
+        Self {
+            value: bytes.bits::<0, 16>() as i16,
+        }
     }
 }
 
@@ -643,13 +642,13 @@ impl<S: I2c, const A: u8> Ina233<S, A> {
 
 // TODO: It may be possible to do these conversions with better precision.
 fn convert_to_voltage(raw: u16) -> ElectricPotential {
-    ElectricPotential::new::<volt>(raw as f32 * 0.00125)
+    ElectricPotential::new::<volt>(raw as f32 * 0.001_25)
 }
 
-fn convert_to_shunt_voltage(raw: u16) -> ElectricPotential {
-    ElectricPotential::new::<volt>(raw as f32 * 0.000_0025)
+fn convert_to_shunt_voltage(raw: i16) -> ElectricPotential {
+    ElectricPotential::new::<volt>(raw as f32 * 0.000_002_5)
 }
 
-fn convert_to_current(raw: u16, current_lsb: ElectricCurrent) -> ElectricCurrent {
+fn convert_to_current(raw: i16, current_lsb: ElectricCurrent) -> ElectricCurrent {
     raw as f32 * current_lsb
 }

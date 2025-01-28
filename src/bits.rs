@@ -13,7 +13,7 @@ impl GetBits<u8> for u8 {
     }
 
     fn bits<const I: usize, const N: usize>(self) -> u8 {
-        (self >> I) & !(u8::MAX << N)
+        (self >> I) & !(u8::MAX.checked_shl(N as u32).unwrap_or(0))
     }
 }
 
@@ -23,7 +23,7 @@ impl GetBits<u16> for u16 {
     }
 
     fn bits<const I: usize, const N: usize>(self) -> u16 {
-        (self >> I) & !(u16::MAX << N)
+        (self >> I) & !(u16::MAX.checked_shl(N as u32).unwrap_or(0))
     }
 }
 
@@ -33,7 +33,7 @@ impl GetBits<u8> for [u8; 1] {
     }
 
     fn bits<const I: usize, const N: usize>(self) -> u8 {
-        (self[0] >> I) & !(u8::MAX << N)
+        (self[0] >> I) & !(u8::MAX.checked_shl(N as u32).unwrap_or(0))
     }
 }
 
@@ -44,6 +44,6 @@ impl GetBits<u16> for [u8; 2] {
 
     fn bits<const I: usize, const N: usize>(self) -> u16 {
         let raw = u16::from_le_bytes(self);
-        (raw >> I) & !(u16::MAX << N)
+        (raw >> I) & !(u16::MAX.checked_shl(N as u32).unwrap_or(0))
     }
 }
