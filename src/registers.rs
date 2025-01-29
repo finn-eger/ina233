@@ -1,14 +1,14 @@
-#![allow(unused)]
+#![allow(dead_code)]
 
 use core::str;
 
-use embedded_hal::i2c::{I2c, SevenBitAddress};
-use uom::si::electric_current::ampere;
+use embedded_hal::i2c::I2c;
 use uom::si::electric_potential::volt;
 use uom::si::f32::{ElectricCurrent, ElectricPotential, ElectricalResistance};
 use uom::si::ratio::ratio;
 
 use crate::bits::GetBits;
+use crate::error::CommunicationError;
 use crate::Ina233;
 
 const CLEAR_FAULTS: u8 = 0x03;
@@ -624,7 +624,7 @@ impl<S: I2c, const A: u8> Ina233<S, A> {
     // TODO: Try to find a way to avoid having to specify the length generic every time I call these methods.
     pub(crate) unsafe fn read_register<R: ReadableRegister<L>, const L: usize>(
         &mut self,
-    ) -> Result<R, S::Error> {
+    ) -> Result<R, CommunicationError<S::Error>> {
         let mut bytes = [0x00; L];
         self.i2c.write_read(A, &[R::ADDRESS], &mut bytes)?;
         Ok(bytes.into())
@@ -633,10 +633,10 @@ impl<S: I2c, const A: u8> Ina233<S, A> {
     pub(crate) unsafe fn write_register<R: WritableRegister<L>, const L: usize>(
         &mut self,
         register: R,
-    ) -> Result<(), S::Error> {
+    ) -> Result<(), CommunicationError<S::Error>> {
         // FIXME: In the future (when arithmetic with const generics is stable)
         // this should be rewritten to separate register addressing from values.
-        self.i2c.write(A, &register.into())
+        Ok(self.i2c.write(A, &register.into())?)
     }
 }
 
