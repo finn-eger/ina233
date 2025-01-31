@@ -1,7 +1,14 @@
-use embedded_hal::i2c::{Error as I2cError, ErrorType};
+use core::fmt::Debug;
 
+use embedded_hal::i2c::{Error as I2cError, ErrorType};
+use thiserror::Error;
+
+/// An error interacting with a monitor.
+#[derive(Debug, Error)]
 pub enum Error<S: ErrorType> {
+    /// An error verifying the identity of a monitor.
     Verification,
+    /// An error communicating with a monitor.
     Communication(S::Error),
 }
 
