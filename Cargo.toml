@@ -1,9 +1,11 @@
 [package]
 name = "ina233"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A Rust driver for the Texas Instruments INA233 power monitor."
+repository = "https://github.com/finn-eger/ina233"
 license = "MIT"
+keywords = ["no_std"]
 categories = ["embedded", "hardware-support", "no-std::no-alloc"]
 
 [dependencies]

@@ -1,7 +1,7 @@
-A Rust driver for the [Texas Instruments INA233](Texas Instruments) power monitor.
+A Rust driver for the [Texas Instruments INA233][Texas Instruments] power monitor.
 _Currently incomplete, with support for basic (continuous) readings only._
 
-For usage details and explanatory notes, see the [documentation](Docs.rs).
+For usage details and explanatory notes, see the [documentation][Docs.rs].
 
 ### Overview
 
